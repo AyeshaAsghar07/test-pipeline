@@ -1,0 +1,116 @@
+# https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
+# https://docs.aws.amazon.com/codebuild/latest/userguide/view-build-details.html#view-build-details-phases
+
+version: 0.2
+
+env:
+  variables:
+    CI: true
+    SLS_DEBUG: '*'
+    STAGE: produs
+  parameter-store:
+    GITHUB_SSH_KEY: '/ds/pipelines/github/ssh-private-key'
+    AWS_KEY: "/infra/pipelines/aws/prod_us/access-key-id"
+    AWS_SECRET: "/infra/pipelines/aws/prod_us/secret-access-key"
+    DOCKER_USER: "/infra/pipelines/docker/mysense-user"
+    DOCKER_PASSWORD: "/infra/pipelines/docker/mysense-password"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12
+      python: 3.8
+    commands:
+      # Copy SSH key so we can pull private npm modules from GitHub
+      - echo $GITHUB_SSH_KEY > ~/.ssh/temp
+      - echo "-----BEGIN OPENSSH PRIVATE KEY-----" > ~/.ssh/id_rsa
+      - echo $(sed -e 's/\s\+/\n/g' ~/.ssh/temp) >> ~/.ssh/id_rsa
+      - echo "-----END OPENSSH PRIVATE KEY-----" >> ~/.ssh/id_rsa
+      - echo "" >> ~/.ssh/id_rsa
+      - rm ~/.ssh/temp
+      - chmod 600 ~/.ssh/*
+
+      # This waits for the dockerdaemon to be initialised (since we are building docker images
+      # We also need Environment - PrivilegedMode to be true for this to work
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2&
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+      # This file configures apt to remove it's cache after installs - we want this cache, so we remove this config
+      - rm -f /etc/apt/apt.conf.d/docker-clean
+
+      # Get Yarn GPG key & add repo to list.
+      # Sometimes Yarn's key expires and it's not rotated on time. This causes `apt-get update -y` below
+      # to fail. Once it fails, the build will always fail, even after the key has been rotated, because
+      # the update would still use the old key, hence we need to always first fetch the GPG key.
+      - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+      - echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+
+      # Update OS packages
+      - apt-get update -y
+      - apt-get install apt-transport-https
+
+      # Install Yarn
+      - apt-get install -y yarn
+
+      # Install kubectl
+      - apt-get install -y gnupg2
+      - curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+      - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
+      - apt-get update
+      - apt-get install -y kubectl
+
+      #install poetry
+      - pip3 install poetry
+      - echo "Listing ssh directory"
+      - ls -l ~/.ssh/
+      # adding github to known hosts
+      - echo "adding github to known hosts"
+      - mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
+      - eval "$(ssh-agent -s)"
+      - ssh-add ~/.ssh/id_rsa
+      #install and udpate docker compose
+      - curl -SL https://github.com/docker/compose/releases/download/v2.12.2/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+      - chmod +x /usr/local/bin/docker-compose
+      - docker-compose --version
+
+  pre_build:
+    commands:
+      # Install dependencies
+      - rm -rf node_modules
+      - yarn install
+      - docker login --username $DOCKER_USER --password $DOCKER_PASSWORD
+  build:
+    commands:
+
+      # Setup AWS Credentials
+      - mkdir -p ~/.aws
+      - echo "[$AWS_PROFILE]" > ~/.aws/credentials
+      - echo "aws_access_key_id=$AWS_KEY" >> ~/.aws/credentials
+      - echo "aws_secret_access_key=$AWS_SECRET" >> ~/.aws/credentials
+      - echo "" >> ~/.aws/credentials
+
+      # Setup AWS Profile
+      - echo "[profile $AWS_PROFILE]" > ~/.aws/config
+      - echo "region=$REGION" >> ~/.aws/config
+      - echo "" >> ~/.aws/config
+
+      - export AWS_DEFAULT_REGION=$REGION
+
+      # Package service
+      - yarn run sls package --stage $STAGE --region $REGION
+
+      # This will fail if packaging was incorrect
+      - ls -la ./.serverless
+
+      # Deploy pre-packaged service
+      - yarn run sls deploy --stage $STAGE --region $REGION --package ./.serverless
+
+      # Enable stack termination protection
+      - STACK_NAME=$(yarn run sls info --stage $STAGE --region $REGION|grep stack:|awk '{print $2}')
+      - echo "Stack name is --> $STACK_NAME"
+      - aws --profile $AWS_PROFILE cloudformation update-termination-protection --enable-termination-protection --stack-name $STACK_NAME
+
+  post_build:
+    commands:
+      # Remove credentials
+      - rm -rf ~/.aws
+      - rm -f ~/.ssh/id_rsa

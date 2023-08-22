@@ -1,0 +1,284 @@
+Resources:
+  DSLambdaSvcBuildOnlyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: codebuild-service
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: 'LogToCloudWatchAccess'
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - arn:aws:logs:${self:provider.region}:#{AWS::AccountId}:log-group:/aws/codebuild/DSLambdaSvcBuildOnly-*:log-stream:*
+              - Sid: 'ListStackExports'
+                Effect: Allow
+                Action:
+                  - cloudformation:ListExports
+                Resource:
+                  - '*'
+
+  DSLambdaSvcDeployDevRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: codebuild-service
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: 'LogToCloudWatchAccess'
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - arn:aws:logs:${self:provider.region}:#{AWS::AccountId}:log-group:/aws/codebuild/DSLambdaSvcDeployDev-*:log-stream:*
+              - Sid: 'ParameterStoreAccess'
+                Effect: Allow
+                Action:
+                  - ssm:GetParameter*
+                Resource:
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/ds/pipelines/github/ssh-private-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/dev/access-key-id
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/dev/secret-access-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-user
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-password
+              - Sid: 'ListStackExports'
+                Effect: Allow
+                Action:
+                  - cloudformation:ListExports
+                Resource:
+                  - '*'
+
+  DSLambdaSvcDeployStagingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: codebuild-service
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: 'LogToCloudWatchAccess'
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - arn:aws:logs:${self:provider.region}:#{AWS::AccountId}:log-group:/aws/codebuild/DSLambdaSvcDeployStaging-*:log-stream:*
+              - Sid: 'ParameterStoreAccess'
+                Effect: Allow
+                Action:
+                  - ssm:GetParameter*
+                Resource:
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/ds/pipelines/github/ssh-private-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/staging/access-key-id
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/staging/secret-access-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-user
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-password
+              - Sid: 'ListStackExports'
+                Effect: Allow
+                Action:
+                  - cloudformation:ListExports
+                Resource:
+                  - '*'
+
+  DSLambdaSvcDeployQARole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: codebuild-service
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: 'LogToCloudWatchAccess'
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - arn:aws:logs:${self:provider.region}:#{AWS::AccountId}:log-group:/aws/codebuild/DSLambdaSvcDeployQA-*:log-stream:*
+              - Sid: 'ParameterStoreAccess'
+                Effect: Allow
+                Action:
+                  - ssm:GetParameter*
+                Resource:
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/ds/pipelines/github/ssh-private-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/qa/access-key-id
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/qa/secret-access-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-user
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-password
+              - Sid: 'ListStackExports'
+                Effect: Allow
+                Action:
+                  - cloudformation:ListExports
+                Resource:
+                  - '*'
+
+  DSLambdaSvcDeployProdRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: codebuild-service
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: 'LogToCloudWatchAccess'
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - arn:aws:logs:${self:provider.region}:#{AWS::AccountId}:log-group:/aws/codebuild/DSLambdaSvcDeployProd-*:log-stream:*
+              - Sid: 'ParameterStoreAccess'
+                Effect: Allow
+                Action:
+                  - ssm:GetParameter*
+                Resource:
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/ds/pipelines/github/ssh-private-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/prod/access-key-id
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/prod/secret-access-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-user
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-password
+              - Sid: 'ListStackExports'
+                Effect: Allow
+                Action:
+                  - cloudformation:ListExports
+                Resource:
+                  - '*'
+
+  DSLambdaSvcDeployProdUSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: codebuild-service
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: 'LogToCloudWatchAccess'
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - arn:aws:logs:${self:provider.region}:#{AWS::AccountId}:log-group:/aws/codebuild/DSLambdaSvcDeployProdUS-*:log-stream:*
+              - Sid: 'ParameterStoreAccess'
+                Effect: Allow
+                Action:
+                  - ssm:GetParameter*
+                Resource:
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/ds/pipelines/github/ssh-private-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/prod_us/access-key-id
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/prod_us/secret-access-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-user
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-password
+              - Sid: 'ListStackExports'
+                Effect: Allow
+                Action:
+                  - cloudformation:ListExports
+                Resource:
+                  - '*'
+
+  DSLambdaSvcDeployProdCARole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: codebuild-service
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: 'LogToCloudWatchAccess'
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - arn:aws:logs:${self:provider.region}:#{AWS::AccountId}:log-group:/aws/codebuild/DSLambdaSvcDeployProdCA-*:log-stream:*
+              - Sid: 'ParameterStoreAccess'
+                Effect: Allow
+                Action:
+                  - ssm:GetParameter*
+                Resource:
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/ds/pipelines/github/ssh-private-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/prod_ca/access-key-id
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/prod_ca/secret-access-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-user
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-password
+              - Sid: 'ListStackExports'
+                Effect: Allow
+                Action:
+                  - cloudformation:ListExports
+                Resource:
+                  - '*'

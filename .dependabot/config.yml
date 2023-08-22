@@ -1,0 +1,44 @@
+# https://dependabot.com/docs/config-file/
+version: 1
+
+update_configs:
+  # Keep package.json (& lockfiles) up to date as soon as new versions are published to the npm registry
+  - package_manager: 'javascript'                             # What package manager to use
+    directory: '/'                                            # Where to look for package manifests (package.json)
+    update_schedule: 'monthly'                                # How often to check for updates (live, daily, weekly, monthly)
+    target_branch: 'master'                                   # Branch to create pull requests against
+    default_reviewers: ['@mysense-ai/operations']             # Reviewers to set on pull requests
+    default_assignees: ['@mysense-ai/operations']             # Assignees to set on pull requests
+    default_labels: ['dependencies', 'dependabot']            # Labels to set on pull requests
+#    automerged_updates:
+#      # Supported dependency types:
+#      #     - 'development'
+#      #     - 'production'
+#      #     - 'all'
+#      # Supported updates to automerge:
+#      #     - 'security:patch'
+#      #       SemVer patch update that fixes a known security vulnerability
+#      #     - 'semver:patch'
+#      #       SemVer patch update, e.g. > 1.x && 1.0.1 to 1.0.3
+#      #     - 'semver:minor'
+#      #       SemVer minor update, e.g. > 1.x && 2.1.4 to 2.3.1
+#      #     - 'in_range'
+#      #       matching the version requirement in your package manifest
+#      #     - 'all'
+#      - match:
+#          dependency_type: 'development'
+#          update_type: 'semver:minor'
+#      - match:
+#          dependency_type: 'production'
+#          update_type: 'semver:patch'
+    ignored_updates:                                          # Ignore certain dependencies or versions
+      # Not ready to upgrade to webpack v5
+      - match:
+          dependency_name: 'webpack'
+      # Husky v5 is no longer free for commercial projects (it will be free again at some point in the future)
+      - match:
+          dependency_name: 'husky'
+    commit_message:                                           # Commit message preferences
+      prefix: 'fix'                     # production dependencies will be prefixed with `fix(deps):`
+      prefix_development: 'chore'       # development dependencies will use `chore(deps-dev):`
+      include_scope: true

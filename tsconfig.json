@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "sourceMap": true,
+        "lib": [
+            "es5",
+            "es6",
+            "dom",
+            "es2015",
+            "es2016",
+            "es2017",
+            "esnext.asynciterable"
+        ],
+        "target": "es2017",
+        "moduleResolution": "node",
+        "forceConsistentCasingInFileNames": true,
+        "strictNullChecks": true,
+        "baseUrl": "src",
+        "paths": {
+            "types/*": [
+                "@types/*"
+            ],
+            "helpers/*": [
+                "helpers/*"
+            ],
+        }
+    },
+    "exclude": [
+        "scratch.ts"
+    ],
+
+}

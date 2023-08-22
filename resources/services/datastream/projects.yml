@@ -1,0 +1,288 @@
+Resources:
+  DataStreamSvcDeployDev:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      BadgeEnabled: true
+      Cache:
+        Type: LOCAL
+        Modes:
+          # cache directories specified in the buildspec file
+          - LOCAL_CUSTOM_CACHE
+      Description: Build & Test then deploy to dev account
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/standard:4.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: REGION
+            Value: eu-west-1
+          - Name: AWS_PROFILE
+            Value: mysense-dev
+          - Name: AWS_ACCOUNT_ID
+            Value: '329707384776'
+          - Name: DOCKER_IMAGE_NAME
+            Value: data-stream-svc
+      # timeout builds that have been in the queue for longer than 10 minutes
+      QueuedTimeoutInMinutes: ${self:custom.QueuedTimeoutInMinutes}
+      ServiceRole: '#{DataStreamSvcDeployDevRole.Arn}'
+      Source:
+        Auth:
+          Type: OAUTH
+        BuildSpec: ${self:custom.buildSpec.buildAndDeploySpec.dev}
+        Location: ${self:custom.DataStreamServiceRepo}
+        ReportBuildStatus: true
+        Type: GITHUB
+        SourceIdentifier: develop
+      TimeoutInMinutes: ${self:custom.TimeoutInMinutes}
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          # Pushes to develop branch (includes merge commits)
+          - - Type: EVENT
+              Pattern: PUSH
+            - Type: HEAD_REF
+              Pattern: ^refs/heads/develop
+              ExcludeMatchedPattern: false
+
+  DataStreamSvcDeployStaging:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      BadgeEnabled: true
+      Cache:
+        Type: LOCAL
+        Modes:
+          # cache directories specified in the buildspec file
+          - LOCAL_CUSTOM_CACHE
+      Description: Build & Test then deploy to staging account
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/standard:4.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: REGION
+            Value: eu-west-1
+          - Name: AWS_PROFILE
+            Value: mysense-staging
+          - Name: AWS_ACCOUNT_ID
+            Value: '826993437677'
+          - Name: DOCKER_IMAGE_NAME
+            Value: data-stream-svc
+      # timeout builds that have been in the queue for longer than 10 minutes
+      QueuedTimeoutInMinutes: ${self:custom.QueuedTimeoutInMinutes}
+      ServiceRole: '#{DataStreamSvcDeployStagingRole.Arn}'
+      Source:
+        Auth:
+          Type: OAUTH
+        BuildSpec: ${self:custom.buildSpec.buildAndDeploySpec.staging}
+        Location: ${self:custom.DataStreamServiceRepo}
+        ReportBuildStatus: true
+        Type: GITHUB
+        SourceIdentifier: release
+      TimeoutInMinutes: ${self:custom.TimeoutInMinutes}
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          # Pushes to release branch (includes merge commits)
+          - - Type: EVENT
+              Pattern: PUSH
+            - Type: HEAD_REF
+              Pattern: ^refs/heads/release
+              ExcludeMatchedPattern: false
+
+  DataStreamSvcDeployQA:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      BadgeEnabled: true
+      Cache:
+        Type: LOCAL
+        Modes:
+          # cache directories specified in the buildspec file
+          - LOCAL_CUSTOM_CACHE
+      Description: Build & Test then deploy to QA account
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/standard:4.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: REGION
+            Value: eu-west-1
+          - Name: AWS_PROFILE
+            Value: mysense-qa
+          - Name: AWS_ACCOUNT_ID
+            Value: '907645333657'
+          - Name: DOCKER_IMAGE_NAME
+            Value: data-stream-svc
+      # timeout builds that have been in the queue for longer than 10 minutes
+      QueuedTimeoutInMinutes: ${self:custom.QueuedTimeoutInMinutes}
+      ServiceRole: '#{DataStreamSvcDeployQARole.Arn}'
+      Source:
+        Auth:
+          Type: OAUTH
+        BuildSpec: ${self:custom.buildSpec.buildAndDeploySpec.qa}
+        Location: ${self:custom.DataStreamServiceRepo}
+        ReportBuildStatus: true
+        Type: GITHUB
+        SourceIdentifier: qa
+      TimeoutInMinutes: ${self:custom.TimeoutInMinutes}
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          # Pushes to qa branch (includes merge commits)
+          - - Type: EVENT
+              Pattern: PUSH
+            - Type: HEAD_REF
+              Pattern: ^refs/heads/qa
+              ExcludeMatchedPattern: false
+
+  DataStreamSvcDeployProd:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      BadgeEnabled: true
+      Cache:
+        Type: LOCAL
+        Modes:
+          # cache directories specified in the buildspec file
+          - LOCAL_CUSTOM_CACHE
+      Description: Build & Test then deploy to prod UK account
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/standard:4.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: REGION
+            Value: eu-west-1
+          - Name: AWS_PROFILE
+            Value: mysense-prod
+          - Name: AWS_ACCOUNT_ID
+            Value: '333253153425'
+          - Name: DOCKER_IMAGE_NAME
+            Value: data-stream-svc
+      # timeout builds that have been in the queue for longer than 10 minutes
+      QueuedTimeoutInMinutes: ${self:custom.QueuedTimeoutInMinutes}
+      ServiceRole: '#{DataStreamSvcDeployProdRole.Arn}'
+      Source:
+        Auth:
+          Type: OAUTH
+        BuildSpec: ${self:custom.buildSpec.buildAndDeploySpec.prod}
+        Location: ${self:custom.DataStreamServiceRepo}
+        ReportBuildStatus: true
+        Type: GITHUB
+        SourceIdentifier: master
+      TimeoutInMinutes: ${self:custom.TimeoutInMinutes}
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          # Pushes to master branch (includes merge commits)
+          - - Type: EVENT
+              Pattern: PUSH
+            - Type: HEAD_REF
+              Pattern: ^refs/heads/master$
+              ExcludeMatchedPattern: false
+
+  DataStreamSvcDeployProdUS:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      BadgeEnabled: true
+      Cache:
+        Type: LOCAL
+        Modes:
+          # cache directories specified in the buildspec file
+          - LOCAL_CUSTOM_CACHE
+      Description: Build & Test then deploy to prod US account
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/standard:4.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: REGION
+            Value: us-east-2
+          - Name: AWS_PROFILE
+            Value: mysense-produs
+          - Name: AWS_ACCOUNT_ID
+            Value: '428768129748'
+          - Name: DOCKER_IMAGE_NAME
+            Value: data-stream-svc
+      # timeout builds that have been in the queue for longer than 10 minutes
+      QueuedTimeoutInMinutes: ${self:custom.QueuedTimeoutInMinutes}
+      ServiceRole: '#{DataStreamSvcDeployProdUSRole.Arn}'
+      Source:
+        Auth:
+          Type: OAUTH
+        BuildSpec: ${self:custom.buildSpec.buildAndDeploySpec.prod_us}
+        Location: ${self:custom.DataStreamServiceRepo}
+        ReportBuildStatus: true
+        Type: GITHUB
+        SourceIdentifier: master_us
+      TimeoutInMinutes: ${self:custom.TimeoutInMinutes}
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          # Pushes to master_us branch (includes merge commits)
+          - - Type: EVENT
+              Pattern: PUSH
+            - Type: HEAD_REF
+              Pattern: ^refs/heads/master_us
+              ExcludeMatchedPattern: false
+
+  DataStreamSvcDeployProdCA:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      BadgeEnabled: true
+      Cache:
+        Type: LOCAL
+        Modes:
+          # cache directories specified in the buildspec file
+          - LOCAL_CUSTOM_CACHE
+      Description: Build & Test then deploy to prod CA account
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/standard:4.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: REGION
+            Value: ca-central-1
+          - Name: AWS_PROFILE
+            Value: mysense-prodca
+          - Name: AWS_ACCOUNT_ID
+            Value: '557588786425'
+          - Name: DOCKER_IMAGE_NAME
+            Value: data-stream-svc
+      # timeout builds that have been in the queue for longer than 10 minutes
+      QueuedTimeoutInMinutes: ${self:custom.QueuedTimeoutInMinutes}
+      ServiceRole: '#{DataStreamSvcDeployProdCARole.Arn}'
+      Source:
+        Auth:
+          Type: OAUTH
+        BuildSpec: ${self:custom.buildSpec.buildAndDeploySpec.prod_ca}
+        Location: ${self:custom.DataStreamServiceRepo}
+        ReportBuildStatus: true
+        Type: GITHUB
+        SourceIdentifier: master_ca
+      TimeoutInMinutes: ${self:custom.TimeoutInMinutes}
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          # Pushes to master_ca branch (includes merge commits)
+          - - Type: EVENT
+              Pattern: PUSH
+            - Type: HEAD_REF
+              Pattern: ^refs/heads/master_ca
+              ExcludeMatchedPattern: false

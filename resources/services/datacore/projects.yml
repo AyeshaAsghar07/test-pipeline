@@ -1,0 +1,48 @@
+Resources:
+  DSDataCoreDeployDev:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      BadgeEnabled: true
+      Cache:
+        Type: LOCAL
+        Modes:
+          # cache directories specified in the buildspec file
+          - LOCAL_CUSTOM_CACHE
+      Description: Build & Test then deploy to dev account
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/standard:4.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: REGION
+            Value: eu-west-1
+          - Name: AWS_PROFILE
+            Value: mysense-dev
+          - Name: AWS_ACCOUNT_ID
+            Value: '329707384776'
+          - Name: TESTS_COVERAGE_BUCKET
+            Value: ${self:custom.devTestsCoverageBucket}
+      # timeout builds that have been in the queue for longer than 10 minutes
+      QueuedTimeoutInMinutes: ${self:custom.QueuedTimeoutInMinutes}
+      ServiceRole: '#{DSDataCoreDevRole.Arn}'
+      Source:
+        Auth:
+          Type: OAUTH
+        BuildSpec: ${self:custom.buildSpec.buildAndDeploySpecDevCDK.dev_cdk}
+        Location: ${self:custom.DSHistoricalRepo}
+        ReportBuildStatus: true
+        Type: GITHUB
+        SourceIdentifier: develop
+      TimeoutInMinutes: ${self:custom.TimeoutInMinutes}
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          # Pushes to develop branch (includes merge commits)
+          - - Type: EVENT
+              Pattern: PUSH
+            - Type: HEAD_REF
+              Pattern: ^refs/heads/develop
+              ExcludeMatchedPattern: false

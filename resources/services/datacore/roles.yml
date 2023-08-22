@@ -1,0 +1,74 @@
+Resources:
+  DSHistoricalSvcBuildOnlyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: codebuild-service
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: 'LogToCloudWatchAccess'
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - arn:aws:logs:${self:provider.region}:#{AWS::AccountId}:log-group:/aws/codebuild/DSHistoricalSvcBuildOnly-*:log-stream:*
+              - Sid: 'ListStackExports'
+                Effect: Allow
+                Action:
+                  - cloudformation:ListExports
+                Resource:
+                  - '*'
+
+  DSHistoricalSvcDeployDevRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: codebuild-service
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: 'LogToCloudWatchAccess'
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - arn:aws:logs:${self:provider.region}:#{AWS::AccountId}:log-group:/aws/codebuild/DSHistoricalSvcDeployDev-*:log-stream:*
+              - Sid: 'ParameterStoreAccess'
+                Effect: Allow
+                Action:
+                  - ssm:GetParameter*
+                Resource:
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/ds/pipelines/github/ssh-private-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/dev/access-key-id
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/aws/dev/secret-access-key
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-user
+                  - arn:aws:ssm:${self:provider.region}:#{AWS::AccountId}:parameter/infra/pipelines/docker/mysense-password
+              - Sid: 'ListStackExports'
+                Effect: Allow
+                Action:
+                  - cloudformation:ListExports
+                Resource:
+                  - '*'

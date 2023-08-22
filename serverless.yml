@@ -1,0 +1,78 @@
+service: ${self:custom.package.name}
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function
+  - serverless-tag-cloud-watch-logs
+  - serverless-pseudo-parameters
+  - serverless-plugin-split-stacks
+  - serverless-ssm-publish
+frameworkVersion: '>=2.25.2 <3.0.0'
+custom:
+  env: ${file(./env/${self:provider.stage}.env.yaml)}
+  package: ${file(./package.json)}
+  webpack:
+    packager: yarn
+  cloudWatchLogsTags:
+    project: ${self:service}
+    stage: ${self:provider.stage}
+    logGroup: ${self:service}-${self:provider.stage}
+  splitStacks:
+    perFunction: false
+    perType: true
+  ssmPublish:
+    enabled: true
+    params: ${file(./env/ssmPublish.yaml)}
+  devTestsCoverageBucket: ${self:custom.env.ROOT_DOMAIN}.${self:custom.env.DEV_DOMAIN}.${self:provider.region}.tests-coverage
+  # GitHub details
+  DatascienceServiceRepo: ${ssm:/infra/pipelines/github/repo/service-datascience}
+  DataCoreCDKRepo: ${ssm:/infra/pipelines/github/repo/service-datacore}
+  DataStreamServiceRepo: ${ssm:/infra/pipelines/github/repo/service-datastream}
+  KDAFlinkServiceRepo: ${ssm:/infra/pipelines/github/repo/service-kdaflink}
+  DSLambdaRepo: ${ssm:/infra/pipelines/github/repo/service-dslambda}
+  DSHistoricalRepo: ${ssm:/infra/pipelines/github/repo/service-dshistorical}
+  # CodeBuild build specs
+  buildSpec: ${file(./resources/getBuildSpec.js)}
+  # How long, in minutes, from 5 to 480 (8 hours). The default is 60 minutes.
+  TimeoutInMinutes: 90
+  QueuedTimeoutInMinutes: 20
+provider:
+  name: aws
+  profile: mysense-${self:provider.stage}
+  stage: ${opt:stage, 'tools'}
+  runtime: nodejs14.x
+  region: ${opt:region, 'eu-west-1'}
+  endpointType: REGIONAL
+  memorySize: 512
+  timeout: 30
+  versionFunctions: false # we don't use aliases against lambda versions
+  logRetentionInDays: 14
+  deploymentBucket:
+    name: ${self:custom.env.ROOT_DOMAIN}.${self:custom.env.DOMAIN}.${self:provider.region}.deploys
+    serverSideEncryption: AES256
+  environment:
+    DEBUG: ${self:custom.env.DEBUG, 'true'}
+    TRACE: ${self:custom.env.TRACE, 'false'}
+    STAGE: ${self:provider.stage}
+    REGION: ${self:provider.region}
+    VERSION: ${self:custom.package.version}
+    GIT_COMMIT_SHA: ${file(./env/gitCommitSha.js):gitCommitSHA}
+    SERVICE: ${self:service}
+  tags:
+    project: ${self:service}
+    stage: ${self:provider.stage}
+package:
+  individually: true
+
+resources:
+  - ${file(resources/services/datascience/roles.yml)}
+  - ${file(resources/services/datascience/projects.yml)}
+  - ${file(resources/services/datastream/roles.yml)}
+  - ${file(resources/services/datastream/projects.yml)}
+  - ${file(resources/services/kdaflink/roles.yml)}
+  - ${file(resources/services/kdaflink/projects.yml)}
+  - ${file(resources/services/dslambda/roles.yml)}
+  - ${file(resources/services/dslambda/projects.yml)}
+  - ${file(resources/services/dshistorical/roles.yml)}
+  - ${file(resources/services/dshistorical/projects.yml)}
+  - ${file(resources/services/datacore/roles.yml)}
+  - ${file(resources/services/datacore/projects.yml)}

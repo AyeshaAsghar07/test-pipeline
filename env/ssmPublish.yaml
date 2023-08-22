@@ -1,0 +1,129 @@
+# Datascience Svc
+- path: /codebuild-slack-notifier/DatascienceSvcDeployDev_channels
+  description: Notification Channel for DEV builds (Datascience Service)
+  value: ci_datascience
+  secure: false
+- path: /codebuild-slack-notifier/DatascienceSvcDeployStaging_channels
+  description: Notification Channel for STAGING builds (Datascience Service)
+  value: ci_datascience
+  secure: false
+- path: /codebuild-slack-notifier/DatascienceSvcDeployQA_channels
+  description: Notification Channel for QA builds (Datascience Service)
+  value: ci_datascience,ci_qa
+  secure: false
+- path: /codebuild-slack-notifier/DatascienceSvcDeployProd_channels
+  description: Notification Channel for PROD UK builds (Datascience Service)
+  value: ci_datascience,ci_production
+  secure: false
+- path: /codebuild-slack-notifier/DatascienceSvcDeployProdUS_channels
+  description: Notification Channel for PROD US builds (Datascience Service)
+  value: ci_datascience,ci_production
+  secure: false
+- path: /codebuild-slack-notifier/DatascienceSvcDeployProdCA_channels
+  description: Notification Channel for PROD CA builds (Datascience Service)
+  value: ci_datascience,ci_production
+  secure: false
+
+# DataStream Svc
+- path: /codebuild-slack-notifier/DataStreamSvcDeployDev_channels
+  description: Notification Channel for DEV builds (DataStream Service)
+  value: ci_datascience
+  secure: false
+- path: /codebuild-slack-notifier/DataStreamSvcDeployStaging_channels
+  description: Notification Channel for STAGING builds (DataStream Service)
+  value: ci_datascience
+  secure: false
+- path: /codebuild-slack-notifier/DataStreamSvcDeployQA_channels
+  description: Notification Channel for QA builds (DataStream Service)
+  value: ci_datascience,ci_qa
+  secure: false
+- path: /codebuild-slack-notifier/DataStreamSvcDeployProd_channels
+  description: Notification Channel for PROD UK builds (DataStream Service)
+  value: ci_datascience,ci_production
+  secure: false
+- path: /codebuild-slack-notifier/DataStreamSvcDeployProdUS_channels
+  description: Notification Channel for PROD US builds (DataStream Service)
+  value: ci_datascience,ci_production
+  secure: false
+- path: /codebuild-slack-notifier/DataStreamSvcDeployProdCA_channels
+  description: Notification Channel for PROD CA builds (DataStream Service)
+  value: ci_datascience,ci_production
+  secure: false
+
+# KDAFlink Svc
+- path: /codebuild-slack-notifier/KDAFlinkSvcDeployDev_channels
+  description: Notification Channel for DEV builds (KDAFlink Service)
+  value: ci_datascience
+  secure: false
+- path: /codebuild-slack-notifier/KDAFlinkSvcDeployStaging_channels
+  description: Notification Channel for STAGING builds (KDAFlink Service)
+  value: ci_datascience
+  secure: false
+- path: /codebuild-slack-notifier/KDAFlinkSvcDeployQA_channels
+  description: Notification Channel for QA builds (KDAFlink Service)
+  value: ci_datascience,ci_qa
+  secure: false
+- path: /codebuild-slack-notifier/KDAFlinkSvcDeployProd_channels
+  description: Notification Channel for PROD UK builds (KDAFlink Service)
+  value: ci_datascience,ci_production
+  secure: false
+- path: /codebuild-slack-notifier/KDAFlinkSvcDeployProdUS_channels
+  description: Notification Channel for PROD US builds (KDAFlink Service)
+  value: ci_datascience,ci_production
+  secure: false
+- path: /codebuild-slack-notifier/KDAFlinkSvcDeployProdCA_channels
+  description: Notification Channel for PROD CA builds (KDAFlink Service)
+  value: ci_datascience,ci_production
+  secure: false
+
+# DSLambda Svc
+- path: /codebuild-slack-notifier/DSLambdaSvcDeployDev_channels
+  description: Notification Channel for DEV builds (DSLambda Service)
+  value: ci_datascience
+  secure: false
+- path: /codebuild-slack-notifier/DSLambdaSvcDeployStaging_channels
+  description: Notification Channel for STAGING builds (DSLambda Service)
+  value: ci_datascience
+  secure: false
+- path: /codebuild-slack-notifier/DSLambdaSvcDeployQA_channels
+  description: Notification Channel for QA builds (DSLambda Service)
+  value: ci_datascience,ci_qa
+  secure: false
+- path: /codebuild-slack-notifier/DSLambdaSvcDeployProd_channels
+  description: Notification Channel for PROD UK builds (DSLambda Service)
+  value: ci_datascience,ci_production
+  secure: false
+- path: /codebuild-slack-notifier/DSLambdaSvcDeployProdUS_channels
+  description: Notification Channel for PROD US builds (DSLambda Service)
+  value: ci_datascience,ci_production
+  secure: false
+- path: /codebuild-slack-notifier/DSLambdaSvcDeployProdCA_channels
+  description: Notification Channel for PROD CA builds (DSLambda Service)
+  value: ci_datascience,ci_production
+  secure: false
+
+  #  DSHistorical Svc
+- path: /codebuild-slack-notifier/DSHistoricalSvcDeployDev_channels
+  description: Notification Channel for DEV builds (DSHistorical Service)
+  value: ci_datascience
+  secure: false
+- path: /codebuild-slack-notifier/DSHistoricalSvcDeployStagin_channels    # had to truncate Staging-* to Stagin due to code build truncating
+  description: Notification Channel for STAGING builds (DSHistorical Service)
+  value: ci_datascience
+  secure: false
+- path: /codebuild-slack-notifier/DSHistoricalSvcDeployQA_channels
+  description: Notification Channel for QA builds (DSHistorical Service)
+  value: ci_datascience,ci_qa
+  secure: false
+- path: /codebuild-slack-notifier/DSHistoricalSvcDeployProd_channels
+  description: Notification Channel for PROD UK builds (DSHistorical Service)
+  value: ci_datascience,ci_production
+  secure: false
+- path: /codebuild-slack-notifier/DSHistoricalSvcDeployProdUS_channels
+  description: Notification Channel for PROD US builds (DSHistorical Service)
+  value: ci_datascience,ci_production
+  secure: false
+- path: /codebuild-slack-notifier/DSHistoricalSvcDeployProdCA_channels
+  description: Notification Channel for PROD CA builds (DSHistorical Service)
+  value: ci_datascience,ci_production
+  secure: false
