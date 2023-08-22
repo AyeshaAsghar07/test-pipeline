@@ -1,0 +1,56 @@
+name: Pipeline Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cdk-test-pipeline
+
+jobs:
+  deploy:
+    name: "Deploy"
+    runs-on: ubuntu-20.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.ACCESS_TOKEN}}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '14.19.3'
+          registry-url: 'https://npm.pkg.github.com'
+      - run: yarn install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.ACCESS_TOKEN_READ}}
+      - name: AWS credentials
+        env:
+          AWS_PROFILE: mysense-tools
+          REGION: eu-west-1
+          AWS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          # setup AWS Credentials
+          mkdir -p ~/.aws
+          echo "[$AWS_PROFILE]" > ~/.aws/credentials
+          echo "aws_access_key_id=$AWS_KEY" >> ~/.aws/credentials
+          echo "aws_secret_access_key=$AWS_SECRET" >> ~/.aws/credentials
+          echo "" >> ~/.aws/credentials
+          # setup AWS Profile
+          echo "[profile $AWS_PROFILE]" > ~/.aws/config
+          echo "region=$REGION" >> ~/.aws/config
+          echo "" >> ~/.aws/config
+      - name: Deploy pipeline
+        working-directory: PipelinesDataScience
+        run: |
+         # cd PipelinesDataScience
+         pwd
+         ls -la
+         git status
+         yarn deploy:tools
+        env:
+          AWS_PROFILE: mysense-tools
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -rf ~/.aws
