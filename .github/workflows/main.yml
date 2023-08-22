@@ -41,7 +41,7 @@ jobs:
           echo "region=$REGION" >> ~/.aws/config
           echo "" >> ~/.aws/config
       - name: Deploy pipeline
-        working-directory: PipelinesDataScience
+        #working-directory: PipelinesDataScience
         run: |
          # cd PipelinesDataScience
          pwd
